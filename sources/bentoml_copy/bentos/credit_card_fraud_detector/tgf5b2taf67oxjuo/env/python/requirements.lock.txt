@@ -1,0 +1,22 @@
+joblib==1.2.0
+    # via scikit-learn
+numpy==1.23.4
+    # via
+    #   -r /var/folders/2m/j3dvm9jx2_nb2cdjtp62_c340000gn/T/tmph28n4986bentoml_bento_credit_card_fraud_detector/env/python/requirements.txt
+    #   pandas
+    #   scikit-learn
+    #   scipy
+pandas==1.5.1
+    # via -r /var/folders/2m/j3dvm9jx2_nb2cdjtp62_c340000gn/T/tmph28n4986bentoml_bento_credit_card_fraud_detector/env/python/requirements.txt
+python-dateutil==2.8.2
+    # via pandas
+pytz==2022.6
+    # via pandas
+scikit-learn==1.1.3
+    # via -r /var/folders/2m/j3dvm9jx2_nb2cdjtp62_c340000gn/T/tmph28n4986bentoml_bento_credit_card_fraud_detector/env/python/requirements.txt
+scipy==1.9.3
+    # via scikit-learn
+six==1.16.0
+    # via python-dateutil
+threadpoolctl==3.1.0
+    # via scikit-learn

@@ -1,0 +1,17 @@
+name: ccf_partial
+version: zrasw7taegklxjuo
+module: bentoml.sklearn
+labels: {}
+options: {}
+metadata: {}
+context:
+  framework_name: sklearn
+  framework_versions:
+    scikit-learn: 1.1.1
+  bentoml_version: 1.0.8
+  python_version: 3.9.9
+signatures:
+  predict:
+    batchable: false
+api_version: v1
+creation_time: '2022-11-09T11:29:39.536849+00:00'
