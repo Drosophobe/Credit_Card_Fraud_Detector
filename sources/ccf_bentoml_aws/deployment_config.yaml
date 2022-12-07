@@ -1,0 +1,9 @@
+api_version: v1
+name: ccf_clf
+operator:
+  name: aws-lambda
+template: terraform
+spec:
+  region: eu-west-3
+  timeout: 30
+  memory_size: 1028

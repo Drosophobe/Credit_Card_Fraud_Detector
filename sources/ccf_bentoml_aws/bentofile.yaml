@@ -1,0 +1,10 @@
+service: "service:svc"  
+labels:
+   owner: SARZIER Pierre
+include:
+- "*.py"
+python:
+   packages:  # Additional pip packages required by the service
+   - numpy
+   - pandas
+   - scikit_learn
