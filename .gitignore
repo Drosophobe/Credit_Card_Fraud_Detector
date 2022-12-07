@@ -7,7 +7,7 @@ __pycache__/
 *.py[cod]
 /.terraform/
 *.tfvars
-/.terraform.lock.hcl/
+.terraform.lock.hcl
 ### Terraform ###
 # Local .terraform directories
 **/.terraform/*
