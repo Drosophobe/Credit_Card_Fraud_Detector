@@ -1,0 +1,16 @@
+artifact_uri: file:///Users/pierresarzier/machinelearning/ML_Ops/mlruns/0/cd0ec831bb25431f8c7068efa5ca051d/artifacts
+deleted_time: 1670171501234
+end_time: 1670171465325
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: deleted
+run_id: cd0ec831bb25431f8c7068efa5ca051d
+run_name: dt_partial
+run_uuid: cd0ec831bb25431f8c7068efa5ca051d
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1670171462183
+status: 3
+tags: []
+user_id: pierresarzier

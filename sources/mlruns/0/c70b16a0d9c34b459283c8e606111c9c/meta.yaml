@@ -1,0 +1,16 @@
+artifact_uri: file:///Users/pierresarzier/machinelearning/ML_Ops/mlruns/0/c70b16a0d9c34b459283c8e606111c9c/artifacts
+deleted_time: 1670174351041
+end_time: 1670171904161
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: deleted
+run_id: c70b16a0d9c34b459283c8e606111c9c
+run_name: gregarious-ant-516
+run_uuid: c70b16a0d9c34b459283c8e606111c9c
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1670171902246
+status: 3
+tags: []
+user_id: pierresarzier

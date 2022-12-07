@@ -1,0 +1,16 @@
+artifact_uri: file:///Users/pierresarzier/machinelearning/ML_Ops/mlruns/0/513cbe88ca34444b861530c909d856aa/artifacts
+deleted_time: 1670171501233
+end_time: 1670171423051
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: deleted
+run_id: 513cbe88ca34444b861530c909d856aa
+run_name: powerful-goat-98
+run_uuid: 513cbe88ca34444b861530c909d856aa
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1670171421287
+status: 3
+tags: []
+user_id: pierresarzier

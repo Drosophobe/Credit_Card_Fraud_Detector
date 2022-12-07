@@ -1,0 +1,16 @@
+artifact_uri: file:///Users/pierresarzier/machinelearning/ML_Ops/mlruns/0/224c27da9bcc48e9bec578dfb155be14/artifacts
+deleted_time: 1670171501228
+end_time: 1670171413392
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: deleted
+run_id: 224c27da9bcc48e9bec578dfb155be14
+run_name: orderly-turtle-54
+run_uuid: 224c27da9bcc48e9bec578dfb155be14
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1670171411452
+status: 3
+tags: []
+user_id: pierresarzier

@@ -1,0 +1,18 @@
+{
+  "accuracy_score-2_X_test": "accuracy_score(y_true=y_test, y_pred=y_pred_test)",
+  "accuracy_score-3_X_train_partial": "accuracy_score(y_true=y_train_partial, y_pred=y_pred_train_partial)",
+  "accuracy_score-4_X_test_partial": "accuracy_score(y_true=y_test_partial, y_pred=y_pred_test_partial)",
+  "accuracy_score_X_train": "accuracy_score(y_true=y_train, y_pred=y_pred_train)",
+  "f1_score-2_X_test": "f1_score(y_true=y_test, y_pred=y_pred_test)",
+  "f1_score-3_X_train_partial": "f1_score(y_true=y_train_partial, y_pred=y_pred_train_partial)",
+  "f1_score-4_X_test_partial": "f1_score(y_true=y_test_partial, y_pred=y_pred_test_partial)",
+  "f1_score_X_train": "f1_score(y_true=y_train, y_pred=y_pred_train)",
+  "precision_score-2_X_test": "precision_score(y_true=y_test, y_pred=y_pred_test)",
+  "precision_score-3_X_train_partial": "precision_score(y_true=y_train_partial, y_pred=y_pred_train_partial)",
+  "precision_score-4_X_test_partial": "precision_score(y_true=y_test_partial, y_pred=y_pred_test_partial)",
+  "precision_score_X_train": "precision_score(y_true=y_train, y_pred=y_pred_train)",
+  "recall_score-2_X_test": "recall_score(y_true=y_test, y_pred=y_pred_test)",
+  "recall_score-3_X_train_partial": "recall_score(y_true=y_train_partial, y_pred=y_pred_train_partial)",
+  "recall_score-4_X_test_partial": "recall_score(y_true=y_test_partial, y_pred=y_pred_test_partial)",
+  "recall_score_X_train": "recall_score(y_true=y_train, y_pred=y_pred_train)"
+}

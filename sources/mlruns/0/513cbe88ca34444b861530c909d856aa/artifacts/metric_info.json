@@ -1,0 +1,5 @@
+{
+  "DecisionTreeClassifier_score-2_X_test_partial": "DecisionTreeClassifier.score(X=X_test_partial, y=y_test_partial)",
+  "DecisionTreeClassifier_score-3_X_val_partial": "DecisionTreeClassifier.score(X=X_val_partial, y=y_val_partial)",
+  "DecisionTreeClassifier_score_X_train_partial": "DecisionTreeClassifier.score(X=X_train_partial, y=y_train_partial)"
+}
