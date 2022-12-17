@@ -75,3 +75,20 @@ class MockDB(TestCase):
         }
         cls.mock_db_config = patch.dict(db_utils.config, testconfig)
 
+"""    @classmethod
+    def tearDownClass(cls):
+        cnx = mysql.connector.connect(
+            host=MYSQL_HOST,
+            user=MYSQL_USER,
+            password=MYSQL_PASSWORD
+        )
+        cursor = cnx.cursor(dictionary=True)
+
+        # drop test database
+        try:
+            cursor.execute("DROP DATABASE {}".format(MYSQL_DB))
+            cnx.commit()
+            cursor.close()
+        except mysql.connector.Error as err:
+            print("Database {} does not exists. Dropping db failed".format(MYSQL_DB))
+        cnx.close()"""
