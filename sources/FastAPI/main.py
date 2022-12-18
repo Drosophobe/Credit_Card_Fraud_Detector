@@ -11,7 +11,7 @@ from passlib.hash import bcrypt
 import jwt
 from typing import Optional
 import pandas as pd
-from Fraud import Fraud
+from Fraud import *
 app = FastAPI()
 JWT_SECRET = '2DD282EDA4F33BCF5FAD1C9F6F75069F1FCE13102BB56393C4819B4EB48C0A40'
 # Generated from https://www.grc.com/passwords.htm
@@ -81,13 +81,31 @@ class Data(BaseModel):
     used_chip: int
     used_pin_number: int
     online_order: Optional[int]
-@app.post('/users/predict', name="Predict Credit Card Fraud", tags=['users'])
+@app.post('/users/predict/v0', name="Predict Credit Card Fraud", tags=['users'])
 def post_predict( new_request: Data, username: str = Depends(get_current_user) ):
-    '''Use model to predict fraud, output = 'Fraud' or 'No Fraud'
+    '''
+    Use model_partial to predict fraud, output = 'Fraud' or 'No Fraud'
     '''
     input_list = [item[1] for item in new_request]
-    response = Fraud(input_list)
-    return {'fraud ?': response} 
+    response = Fraud(input_list, loaded_model_partial)
+    return {'Model v0 : \n fraud ?': response}
+@app.post('/users/predict/vi', name="Predict Credit Card Fraud", tags=['users'])
+def post_predict( new_request: Data, username: str = Depends(get_current_user) ):
+    '''
+    Use model_in_progress to predict fraud, output = 'Fraud' or 'No Fraud'
+    '''
+    input_list = [item[1] for item in new_request]
+    response = Fraud(input_list, loaded_model_partial)
+    return {'Model vi : \n fraud ?': response} 
+@app.post('/users/predict/v1', name="Predict Credit Card Fraud", tags=['users'])
+def post_predict( new_request: Data, username: str = Depends(get_current_user) ):
+    '''
+    Use model_final to predict fraud, output = 'Fraud' or 'No Fraud'
+    '''
+    input_list = [item[1] for item in new_request]
+    response = Fraud(input_list, loaded_model_full)
+    return {'Model v1 : \n fraud ?': response}
+
 @app.post('/users/save', name="Predict Credit Card Fraud and update database", tags=['users'])
 def post_predict_save(new_request: Data, username: str = Depends(get_current_user) ):
     '''Use model to predict fraud, save result to database, output = database tail
