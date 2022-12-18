@@ -7,10 +7,14 @@ class TestUtils(MockDB):
     def test_db_write(self):
         with self.mock_db_config:
             self.assertEqual(db_utils.db_write("""INSERT INTO `user` (`id`, `username`, `password_hash`) VALUES
-                            ('3', 'Dagobert_1', 'qdeqqdwqe')"""), True)
+                            ('1', 'admin', '$2b$12$.JtAneBODWfF29sdJbCgceK8UKjISRSki3vHRIP7OMyk.xsTO49NG')"""), True, "Couldn't create the user admin with id = 1")
+                            # Hashed => 4dm1N
             self.assertEqual(db_utils.db_write("""INSERT INTO `user` (`id`, `username`, `password_hash`) VALUES
-                            ('1', 'Dagobert_2', 'qdeqqdwqe')"""), False)
-            self.assertEqual(db_utils.db_write("""DELETE FROM `user` WHERE id='1' """), True)
+                            ('2', 'admin', 'admin')"""), False, "Same username was added twice but not permitted ")
+            self.assertEqual(db_utils.db_write("""INSERT INTO `user` (`id`, `username`, `password_hash`) VALUES
+                            ('1', 'user', 'hashed_pswd')"""), False, "the id is not incremented")
+            self.assertEqual(db_utils.db_write("""DELETE FROM `user` WHERE id='3' """), True, "couldn't remove random user")
             #self.assertEqual(db_utils.db_write("""DELETE FROM `user WHERE id='3' """), True)
+            # Other tests can be added bellow 
 if __name__ == "__main__":
     unittest.main()

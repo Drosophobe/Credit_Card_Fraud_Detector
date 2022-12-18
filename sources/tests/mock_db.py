@@ -40,9 +40,10 @@ class MockDB(TestCase):
         cnx.database = MYSQL_DB
 
         query = """CREATE TABLE `user` (
-                  `id` int NOT NULL PRIMARY KEY ,
+                  `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY ,
                   `username` varchar(50) NOT NULL,
-                  `password_hash` varchar(50) NOT NULL
+                  `password_hash` varchar(128) NOT NULL,
+                  UNIQUE(username)
                 )"""
         try:
             cursor.execute(query)
@@ -56,8 +57,8 @@ class MockDB(TestCase):
             print("OK")
 
         insert_data_query = """INSERT INTO `user` (`id`, `username`, `password_hash`) VALUES
-                            ('1', 'DarkAngel', '64'),
-                            ('2', 'Caroline', 'Poupée')"""
+                            ('3', 'DarkAngel', '64'),
+                            ('4', 'Caroline', 'Poupéeeee')"""
         try:
             cursor.execute(insert_data_query)
             cnx.commit()
