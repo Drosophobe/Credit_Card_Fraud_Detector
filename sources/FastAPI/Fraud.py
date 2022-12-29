@@ -1,6 +1,7 @@
 import pickle
 import pandas as pd
-
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
 # Load models
 loaded_model_partial = pickle.load(open('../models/dt_partial.sav', 'rb'))
 loaded_model_i = pickle.load(open('../models/dt_i.sav', 'rb'))
@@ -32,3 +33,10 @@ def Fraud(Input_list, model= loaded_model_full):
         return ("No Fraud")
     else:
         return ("Fraud")
+def Retrain():
+    df = pd.read_csv("../Datasets/df_i.csv", index_col = 0)
+    model_i = DecisionTreeClassifier(max_depth = 8, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(df.drop(['fraud'],axis = 1), df['fraud'], random_state=42)
+    model_i.fit(X_train, y_train)
+    filename = '../models/FastAPI/dt_i.sav'
+    pickle.dump(model_i, open(filename, 'wb'))
