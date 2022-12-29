@@ -12,6 +12,7 @@ import jwt
 from typing import Optional
 import pandas as pd
 from Fraud import *
+df_i = pd.DataFrame(columns=["distance_from_home", "distance_from_last_transaction", "ratio_to_median_purchase_price", "repeat_retailer", "used_chip", "used_pin_number", "online_order", "fraud"])
 app = FastAPI()
 JWT_SECRET = '2DD282EDA4F33BCF5FAD1C9F6F75069F1FCE13102BB56393C4819B4EB48C0A40'
 # Generated from https://www.grc.com/passwords.htm
@@ -28,6 +29,7 @@ class User(Model):
     def verify_password(self, password):
         # On vérifie que le password hashed est bien le password après décryption
         return bcrypt.verify(password, self.password_hash)
+        
 # infos of the user
 User_Pydantic = pydantic_model_creator(User, name='User')
 # Infos the user pass in the api 
@@ -94,8 +96,20 @@ def post_predict( new_request: Data, username: str = Depends(get_current_user) )
     '''
     Use model_in_progress to predict fraud, output = 'Fraud' or 'No Fraud'
     '''
-    input_list = [item[1] for item in new_request]
-    response = Fraud(input_list, loaded_model_partial)
+    series_list = [item[1] for item in new_request]
+    response = Fraud(series_list, loaded_model_partial)
+    print(series_list)
+    if response=='Fraud':
+        x=1
+    else:
+        x=0
+    global df_i
+    series_list.append(x)
+    serie_i = pd.Series(series_list, index = ["distance_from_home", "distance_from_last_transaction", "ratio_to_median_purchase_price", "repeat_retailer", "used_chip", "used_pin_number", "online_order", "fraud"])
+    df_i = df_i.append(serie_i, ignore_index = True)
+    print(df_i)
+
+    #serie_i = df
     return {'Model vi : \n fraud ?': response} 
 @app.post('/users/predict/v1', name="Predict Credit Card Fraud", tags=['users'])
 def post_predict( new_request: Data, username: str = Depends(get_current_user) ):
@@ -106,25 +120,18 @@ def post_predict( new_request: Data, username: str = Depends(get_current_user) )
     response = Fraud(input_list, loaded_model_full)
     return {'Model v1 : \n fraud ?': response}
 
-@app.post('/users/save', name="Predict Credit Card Fraud and update database", tags=['users'])
-def post_predict_save(new_request: Data, username: str = Depends(get_current_user) ):
+@app.post('/users/save', name="Update database from previous predicitons", tags=['users'])
+def post_save(new_request: Data, username: str = Depends(get_current_user) ):
     '''Use model to predict fraud, save result to database, output = database tail
     '''
-    input_list = [item[1] for item in new_request]
-    response = Fraud(input_list)
-    if response=='Fraud':
-        x=1
-    else:
-        x=0
-    # save in database
-    df = pd.read_csv(path+"card_transdata.csv")
-    input_list.append(x)
-    df_new_line=pd.DataFrame(data=input_list).T
-    df_new_line.columns = df.columns
-    df=pd.concat([df, df_new_line], axis=0).reset_index(drop=True)
-    # update question.csv
-    #df.to_csv(path+"card_transdata.csv", encoding='utf-8', index=False)
-    return HTMLResponse(content=df.tail().to_html(), status_code=200)
-    #return {"output": input_list}
+    df_0 = pd.read_csv("../Datasets/df_partial.csv", index_col = 0)
+    df_2 = pd.concat([df_0, df_i], ignore_index=True)
+    print(df_0)
+    print(df_i)
+    print(df_2)
+    df_2.to_csv("../Datasets/df_i.csv")
+@app.post('/users/train_model', name = "Retrain the model based on database previous update")
+def post_retrain(new_request: Data, username: str = Depends(get_current_user)):
+    Retrain()
 # Pour la db en mySQL il faut lancer un server puis télécharger MySQLWorkBench et aller dans l'onget Database -> Manage connection -> New - > set le name à ccf_users et changer l'ip et le port en fonction de tes entrées (par defaut le mdp est à rien) 
 register_tortoise(app, db_url ='mysql://root:@127.0.0.1:3306/ccf_users', modules={'models': ['main']}, generate_schemas = True, add_exception_handlers = True)
