@@ -91,8 +91,8 @@ def post_predict( new_request: Data, username: str = Depends(get_current_user) )
     input_list = [item[1] for item in new_request]
     response = Fraud(input_list, loaded_model_partial)
     return {'Model v0 : \n fraud ?': response}
-@app.post('/users/predict/vi', name="Predict Credit Card Fraud", tags=['users'])
-def post_predict( new_request: Data, username: str = Depends(get_current_user) ):
+@app.post('/users/predict/vi', name="Predict Credit Card Fraud and store datas", tags=['users'])
+def post_predict(new_request: Data, username: str = Depends(get_current_user)):
     '''
     Use model_in_progress to predict fraud, output = 'Fraud' or 'No Fraud'
     '''
@@ -121,17 +121,22 @@ def post_predict( new_request: Data, username: str = Depends(get_current_user) )
     return {'Model v1 : \n fraud ?': response}
 
 @app.post('/users/save', name="Update database from previous predicitons", tags=['users'])
-def post_save(new_request: Data, username: str = Depends(get_current_user) ):
+def post_save(username: str = Depends(ouath2_scheme) ):
     '''Use model to predict fraud, save result to database, output = database tail
     '''
-    df_0 = pd.read_csv("../Datasets/df_partial.csv", index_col = 0)
-    df_2 = pd.concat([df_0, df_i], ignore_index=True)
-    print(df_0)
-    print(df_i)
-    print(df_2)
-    df_2.to_csv("../Datasets/df_i.csv")
+    if username == "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInBhc3N3b3JkX2hhc2giOiIkMmIkMTIkLkp0QW5lQk9EV2ZGMjlzZEpiQ2djZUs4VUtqSVNSU2tpM3ZIUklQN09NeWsueHNUTzQ5TkcifQ.wWQTmRV0NsXzma64KmRIEaToqga6bk_UJGD7NR3r9dQ":
+        df_0 = pd.read_csv("../Datasets/df_partial.csv", index_col = 0)
+        df_2 = pd.concat([df_0, df_i], ignore_index=True)
+        df_2.to_csv("../Datasets/df_i.csv")
+        return "The Dataset has been successfully updated"
+    else:
+        return "Please sign in as the admin to do such thing"
 @app.post('/users/train_model', name = "Retrain the model based on database previous update")
-def post_retrain(new_request: Data, username: str = Depends(get_current_user)):
-    Retrain()
+def post_retrain(username: User_Pydantic = Depends(ouath2_scheme)):
+    if username == "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInBhc3N3b3JkX2hhc2giOiIkMmIkMTIkLkp0QW5lQk9EV2ZGMjlzZEpiQ2djZUs4VUtqSVNSU2tpM3ZIUklQN09NeWsueHNUTzQ5TkcifQ.wWQTmRV0NsXzma64KmRIEaToqga6bk_UJGD7NR3r9dQ":
+        Retrain()
+        return "The model has been updated"
+    else :
+        return "Please sign in as the admin to do such thing"
 # Pour la db en mySQL il faut lancer un server puis télécharger MySQLWorkBench et aller dans l'onget Database -> Manage connection -> New - > set le name à ccf_users et changer l'ip et le port en fonction de tes entrées (par defaut le mdp est à rien) 
 register_tortoise(app, db_url ='mysql://root:@127.0.0.1:3306/ccf_users', modules={'models': ['main']}, generate_schemas = True, add_exception_handlers = True)

@@ -38,5 +38,7 @@ def Retrain():
     model_i = DecisionTreeClassifier(max_depth = 8, random_state=42)
     X_train, X_test, y_train, y_test = train_test_split(df.drop(['fraud'],axis = 1), df['fraud'], random_state=42)
     model_i.fit(X_train, y_train)
-    filename = '../models/FastAPI/dt_i.sav'
+    filename = '../models/dt_i.sav'
     pickle.dump(model_i, open(filename, 'wb'))
+
+Retrain()
