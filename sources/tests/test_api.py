@@ -8,9 +8,8 @@ class TestEncryption(unittest.TestCase):
     # data to test
         self.test_user = "Regissssssfffsssdddddxsdddssssss"
         self.test_password = "Roberte"
-        #self.user_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInBhc3N3b3JkX2hhc2giOiIkMmIkMTIkLkp0QW5lQk9EV2ZGMjlzZEpiQ2djZUs4VUtqSVNSU2tpM3ZIUklQN09NeWsueHNUTzQ5TkcifQ.wWQTmRV0NsXzma64KmRIEaToqga6bk_UJGD7NR3r9dQ"
 ################################################################NEW_USER########################################################
-    def test_response_new_user(self):
+    """def test_response_new_user(self):
     # Try to create a new user (That will only test the response status_code)
         self.headers = {
     'accept': 'application/json',
@@ -18,7 +17,7 @@ class TestEncryption(unittest.TestCase):
     'Content-Type': 'application/json',}
         self.json_data = {"username": self.test_user,"password_hash": self.test_password}
         self.response = requests.post('http://127.0.0.1:8000/users', headers=self.headers, json=self.json_data)
-        self.assertEqual(self.response.status_code,200, "the response is supposed to be 200 but {} instead".format(self.response.status_code))
+        self.assertEqual(self.response.status_code,200, "the response is supposed to be 200 but {} instead".format(self.response.status_code))"""
     def test_response_new_old_user(self):
     # Try to create an admin new user (That will only test the response status_code)
         self.headers = {
@@ -109,5 +108,59 @@ class TestEncryption(unittest.TestCase):
     'online_order': 0,}
         self.response = requests.post('http://127.0.0.1:8000/users/predict/v1', headers=self.headers, json=self.json_data)
         self.assertEqual(self.response.status_code,200, "the response is supposed to be 200 but {} instead".format(self.response.status_code))
+################################################################DATASET_SAVING########################################################
+    def test_dataset_saving_authenticated_as_admin(self):
+        # This function try to save the dataset while authenticated as the admin
+        self.headers = {
+    'accept': 'application/json',
+    'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInBhc3N3b3JkX2hhc2giOiIkMmIkMTIkLkp0QW5lQk9EV2ZGMjlzZEpiQ2djZUs4VUtqSVNSU2tpM3ZIUklQN09NeWsueHNUTzQ5TkcifQ.wWQTmRV0NsXzma64KmRIEaToqga6bk_UJGD7NR3r9dQ',
+    'Content-Type': 'application/x-www-form-urlencoded',}
+        self.response = requests.post('http://127.0.0.1:8000/users/save', headers=self.headers)
+        self.assertEqual(self.response.status_code,200, "the response is supposed to be 200 but {} instead".format(self.response.status_code))
+        self.assertEqual(self.response.text,'"The Dataset has been successfully updated"', "the response is supposed to be 'The Dataset has been successfully updated' but {} instead".format(self.response.text))
+        print(self.response.text)
+    def test_dataset_saving_authenticated_as_lambda_user(self):
+        # This function try to save the dataset while authenticated as the user created above
+        self.user_token = self.test_token_generator() # Inherite the token from test_token_generator()
+        self.headers = {
+    'accept': 'application/json',
+    'Authorization': 'Bearer {}'.format(self.user_token),
+    'Content-Type': 'application/x-www-form-urlencoded',}
+        self.response = requests.post('http://127.0.0.1:8000/users/save', headers=self.headers)
+        self.assertEqual(self.response.status_code,200, "the response is supposed to be 200 but {} instead".format(self.response.status_code))
+        self.assertEqual(self.response.text,'"Please sign in as the admin to do such thing"', "the response is supposed to be 'Please sign in as the admin to do such thing' but {} instead".format(self.response.text))
+    def test_dataset_saving_not_authenticated(self):
+    # This function try to save the dataset while not authenticated at all 
+        self.headers = {
+    'accept': 'application/json',
+    'content-type': 'application/x-www-form-urlencoded',}
+        self.response = requests.post('http://127.0.0.1:8000/users/save', headers=self.headers)
+        self.assertEqual(self.response.status_code,401, "the response is supposed to be 401 but {} instead".format(self.response.status_code))
+################################################################MODEL_RETRAINING########################################################     
+    def test_retrain_model_as_admin(self):
+    # This function try to train the model while we are connect as the admin
+        self.headers = {
+    'accept': 'application/json',
+    'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInBhc3N3b3JkX2hhc2giOiIkMmIkMTIkLkp0QW5lQk9EV2ZGMjlzZEpiQ2djZUs4VUtqSVNSU2tpM3ZIUklQN09NeWsueHNUTzQ5TkcifQ.wWQTmRV0NsXzma64KmRIEaToqga6bk_UJGD7NR3r9dQ',
+    'Content-Type': 'application/x-www-form-urlencoded',}
+        self.response = requests.post('http://127.0.0.1:8000/users/train_model', headers=self.headers)
+        self.assertEqual(self.response.status_code,200, "the response is supposed to be 200 but {} instead".format(self.response.status_code))
+        self.assertEqual(self.response.text,'"The model has been updated"', "the response is supposed to be 'The model has been updated' but {} instead".format(self.response.text))
+    def test_retrain_model_not_authenticated(self):
+        self.headers = {
+    'accept': 'application/json',
+    'content-type': 'application/x-www-form-urlencoded',}
+        self.response = requests.post('http://127.0.0.1:8000/users/train_model', headers=self.headers)
+        self.assertEqual(self.response.status_code,401, "the response is supposed to be 401 but {} instead".format(self.response.status_code))
+        self.assertEqual(self.response.text, '{"detail":"Not authenticated"}', "the response is supposed to be '{'detail':'Not authenticated'}'")
+    def test_retrain_model_authenticated_as_lambda_user(self):
+        self.user_token = self.test_token_generator()
+        self.headers = {
+    'accept': 'application/json',
+    'Authorization': 'Bearer {}'.format(self.user_token),
+    'Content-Type': 'application/x-www-form-urlencoded',}
+        self.response = requests.post('http://127.0.0.1:8000/users/train_model', headers=self.headers)
+        self.assertEqual(self.response.status_code,200, "the response is supposed to be 200 but {} instead".format(self.response.status_code))
+        self.assertEqual(self.response.text,'"Please sign in as the admin to do such thing"', "the response is supposed to be 'Please sign in as the admin to do such thing' but {} instead".format(self.response.text))
 if __name__ == "__main__":
     unittest.main()
