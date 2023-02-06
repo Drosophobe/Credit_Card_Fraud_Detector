@@ -1,6 +1,6 @@
 import unittest
 import sys
-sys.path.append('/Users/pierresarzier/Credit_Card_Fraud/sources/FastAPI/')
+sys.path.append('/Users/pierresarzier/Credit_Card_Fraud/sources/FastAPI')
 from Fraud import Fraud
 
 ###########################################MODEL####################################################
@@ -20,7 +20,7 @@ class TestEncryption(unittest.TestCase):
         self.assertIsNotNone(Fraud(self.my_features), "The model doesn't return anything")
     def test_lenTest(self):
         # Check is len(my_features) match with expected len
-        self.assertEqual(len(self.my_features), 7, "The Model needs 7 features : {} were passed".format(len(self.my_features)))
+        self.assertEqual(len(self.my_features), 7, "The model needs 7 features : {} were passed".format(len(self.my_features)))
     def test_inputType(self):
         # Check the type of the output (str)
         self.assertIsInstance(Fraud(self.my_features), str, "The model's output is expected to be a string but : {} is sent".format(type(Fraud(self.my_features))))

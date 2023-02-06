@@ -1,4 +1,8 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+# Libraries used for html templates (Above)
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from tortoise import fields 
 from tortoise.contrib.fastapi import register_tortoise
@@ -14,6 +18,9 @@ import pandas as pd
 from Fraud import *
 df_i = pd.DataFrame(columns=["distance_from_home", "distance_from_last_transaction", "ratio_to_median_purchase_price", "repeat_retailer", "used_chip", "used_pin_number", "online_order", "fraud"])
 app = FastAPI()
+# Load templates and static contents
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 JWT_SECRET = '2DD282EDA4F33BCF5FAD1C9F6F75069F1FCE13102BB56393C4819B4EB48C0A40'
 # Generated from https://www.grc.com/passwords.htm
 ALGORITHM = 'HS256'
@@ -69,7 +76,7 @@ async def create_user(user: UserIn_Pydantic):
 async def get_user(user:User_Pydantic = Depends(get_current_user)):
         return user
 
-#########################################AJOUTER MODEL ICI####################################################
+#########################################PREDICTIONS####################################################
 path = 'Datasets/'
 from pydantic import BaseModel
 
@@ -83,7 +90,7 @@ class Data(BaseModel):
     used_chip: int
     used_pin_number: int
     online_order: Optional[int]
-@app.post('/users/predict/v0', name="Predict Credit Card Fraud", tags=['users'])
+@app.post('/model/predict/v0', name="Predict Credit Card Fraud", tags=['users'])
 def post_predict( new_request: Data, username: str = Depends(get_current_user) ):
     '''
     Use model_partial to predict fraud, output = 'Fraud' or 'No Fraud'
@@ -91,7 +98,15 @@ def post_predict( new_request: Data, username: str = Depends(get_current_user) )
     input_list = [item[1] for item in new_request]
     response = Fraud(input_list, loaded_model_partial)
     return {'Model v0 : \n fraud ?': response}
-@app.post('/users/predict/vi', name="Predict Credit Card Fraud and store datas", tags=['users'])
+@app.get('/model/predict/v0_html', name="Predict Credit Card Fraud HTML", tags=['users'], response_class=HTMLResponse)
+def post_predict( new_request: Data, request: Request, username: str = Depends(get_current_user) ):
+    '''
+    Use model_partial to predict fraud, output = 'Fraud' or 'No Fraud'
+    '''
+    input_list = [item[1] for item in new_request]
+    response = Fraud(input_list, loaded_model_partial)
+    return templates.TemplateResponse("item.html", {"request": request, "id": response})
+@app.post('/model/predict/vi', name="Predict Credit Card Fraud and store datas", tags=['users'])
 def post_predict(new_request: Data, username: str = Depends(get_current_user)):
     '''
     Use model_in_progress to predict fraud, output = 'Fraud' or 'No Fraud'
@@ -111,7 +126,7 @@ def post_predict(new_request: Data, username: str = Depends(get_current_user)):
 
     #serie_i = df
     return {'Model vi : \n fraud ?': response} 
-@app.post('/users/predict/v1', name="Predict Credit Card Fraud", tags=['users'])
+@app.post('/model/predict/v1', name="Predict Credit Card Fraud", tags=['users'])
 def post_predict( new_request: Data, username: str = Depends(get_current_user) ):
     '''
     Use model_final to predict fraud, output = 'Fraud' or 'No Fraud'
@@ -120,7 +135,7 @@ def post_predict( new_request: Data, username: str = Depends(get_current_user) )
     response = Fraud(input_list, loaded_model_full)
     return {'Model v1 : \n fraud ?': response}
 
-@app.post('/users/save', name="Update database from previous predicitons", tags=['users'])
+@app.post('/model/save', name="Update database from previous predicitons", tags=['users'])
 def post_save(username: str = Depends(ouath2_scheme) ):
     '''Use model to predict fraud, save result to database, output = database tail
     '''
@@ -131,7 +146,7 @@ def post_save(username: str = Depends(ouath2_scheme) ):
         return "The Dataset has been successfully updated"
     else:
         return "Please sign in as the admin to do such thing"
-@app.post('/users/train_model', name = "Retrain the model based on database previous update")
+@app.post('/model/train_model', name = "Retrain the model based on database previous update")
 def post_retrain(username: User_Pydantic = Depends(ouath2_scheme)):
     if username == "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInBhc3N3b3JkX2hhc2giOiIkMmIkMTIkLkp0QW5lQk9EV2ZGMjlzZEpiQ2djZUs4VUtqSVNSU2tpM3ZIUklQN09NeWsueHNUTzQ5TkcifQ.wWQTmRV0NsXzma64KmRIEaToqga6bk_UJGD7NR3r9dQ":
         Retrain()
