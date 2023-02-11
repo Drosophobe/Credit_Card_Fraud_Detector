@@ -16,7 +16,7 @@ import jwt
 from typing import Optional
 import pandas as pd
 from Fraud import *
-df_i = pd.DataFrame(columns=["distance_from_home", "distance_from_last_transaction", "ratio_to_median_purchase_price", "repeat_retailer", "used_chip", "used_pin_number", "online_order", "fraud"])
+df_i = pd.DataFrame(columns=["distance_from_home", "distance_from_last_transaction", "ratio_to_median_purchase_price", "repeat_retailer", "user_chip", "used_pin_number", "online_order", "fraud"])
 app = FastAPI()
 # Load templates and static contents
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -98,14 +98,7 @@ def post_predict( new_request: Data, username: str = Depends(get_current_user) )
     input_list = [item[1] for item in new_request]
     response = Fraud(input_list, loaded_model_partial)
     return {'Model v0 : \n fraud ?': response}
-@app.get('/model/predict/v0_html', name="Predict Credit Card Fraud HTML", tags=['users'], response_class=HTMLResponse)
-def post_predict( new_request: Data, request: Request, username: str = Depends(get_current_user) ):
-    '''
-    Use model_partial to predict fraud, output = 'Fraud' or 'No Fraud'
-    '''
-    input_list = [item[1] for item in new_request]
-    response = Fraud(input_list, loaded_model_partial)
-    return templates.TemplateResponse("item.html", {"request": request, "id": response})
+
 @app.post('/model/predict/vi', name="Predict Credit Card Fraud and store datas", tags=['users'])
 def post_predict(new_request: Data, username: str = Depends(get_current_user)):
     '''
@@ -114,18 +107,26 @@ def post_predict(new_request: Data, username: str = Depends(get_current_user)):
     series_list = [item[1] for item in new_request]
     response = Fraud(series_list, loaded_model_partial)
     print(series_list)
+    # Vérifier si la prediction vient de la db ou non
     if response=='Fraud':
         x=1
     else:
         x=0
+    # We are goining to check if the pred asked come from ccf_data_remaining or a new input
+    # If yes we will save the 'fraud' from db not pred if not we will save the prediction
+    in_db = check_if_prediction_in_db(series_list)
+    if in_db[0] :
+        x = in_db[1]
+        origin = "Corrected"
+    else:
+        origin = "Not Corrected"
     global df_i
     series_list.append(x)
-    serie_i = pd.Series(series_list, index = ["distance_from_home", "distance_from_last_transaction", "ratio_to_median_purchase_price", "repeat_retailer", "used_chip", "used_pin_number", "online_order", "fraud"])
+    serie_i = pd.Series(series_list, index = ["distance_from_home", "distance_from_last_transaction", "ratio_to_median_purchase_price", "repeat_retailer", "user_chip", "used_pin_number", "online_order", "fraud"])
     df_i = df_i.append(serie_i, ignore_index = True)
     print(df_i)
-
-    #serie_i = df
-    return {'Model vi : \n fraud ?': response} 
+    save_prediction_to_db(serie_i)
+    return {'Model vi : \n fraud ?': response, "Origin :": origin} 
 @app.post('/model/predict/v1', name="Predict Credit Card Fraud", tags=['users'])
 def post_predict( new_request: Data, username: str = Depends(get_current_user) ):
     '''
@@ -139,11 +140,13 @@ def post_predict( new_request: Data, username: str = Depends(get_current_user) )
 def post_save(username: str = Depends(ouath2_scheme) ):
     '''Use model to predict fraud, save result to database, output = database tail
     '''
+    # Tout ça est à refaire avec les databases
     if username == "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInBhc3N3b3JkX2hhc2giOiIkMmIkMTIkLkp0QW5lQk9EV2ZGMjlzZEpiQ2djZUs4VUtqSVNSU2tpM3ZIUklQN09NeWsueHNUTzQ5TkcifQ.wWQTmRV0NsXzma64KmRIEaToqga6bk_UJGD7NR3r9dQ":
-        df_0 = pd.read_csv("../Datasets/df_partial.csv", index_col = 0)
-        df_2 = pd.concat([df_0, df_i], ignore_index=True)
-        df_2.to_csv("../Datasets/df_i.csv")
-        return "The Dataset has been successfully updated"
+        insert_prediction_to_db()
+        #df_0 = pd.read_csv("../Datasets/df_partial.csv", index_col = 0)
+        #df_2 = pd.concat([df_0, df_i], ignore_index=True)
+        #df_2.to_csv("../Datasets/df_i.csv")
+        return "The Database has been successfully updated"
     else:
         return "Please sign in as the admin to do such thing"
 @app.post('/model/train_model', name = "Retrain the model based on database previous update")
