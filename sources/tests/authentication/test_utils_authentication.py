@@ -1,4 +1,4 @@
-from mock_db import MockDB
+from mock_db_authentication import MockDB
 from mock import patch
 import unittest
 import db_utils

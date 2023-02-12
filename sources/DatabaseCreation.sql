@@ -17,9 +17,8 @@ ENCLOSED BY '"'
 LINES TERMINATED BY '\r'
 IGNORE 1 ROWS;
 -- We are checking the Table previously created
-SELECT * FROM ccf_data.ccf_data_full LIMIT 0, 1000000;
+SELECT * FROM ccf_data.ccf_data_full LIMIT 0, 10000000;
 SELECT COUNT(*) FROM ccf_data.ccf_data_full;
-
 
 -- We are creating a table with 0.1% of our data which will be used for the base model
 DROP TABLE IF EXISTS ccf_data.ccf_data_partial;
@@ -88,7 +87,7 @@ INSERT INTO ccf_data.ccf_data_remaining SELECT * FROM ccf_data.ccf_data_full;
 DELETE FROM ccf_data_remaining LIMIT 1000;
 -- We are checking the Table previously created
 SELECT * FROM ccf_data.ccf_data_remaining LIMIT 0, 10000000;
--- Checking the values to be deleted
+-- Checking the values to be deleted 
 SELECT distance_from_home FROM ccf_data_remaining WHERE ROUND(distance_from_home, 4) IN (SELECT ROUND(distance_from_home, 4) FROM ccf_data_to_add) AND ROUND(distance_from_last_transaction, 4) IN (SELECT ROUND(distance_from_last_transaction, 4) FROM ccf_data_to_add) AND ROUND(ratio_to_median_purchase_price, 4) IN (SELECT ROUND(ratio_to_median_purchase_price, 4) FROM ccf_data_to_add);
 -- we are deleting the values matching with ccf_data_to_add cause already sent to training 
 DELETE  FROM ccf_data_remaining WHERE ROUND(distance_from_home, 4) IN (SELECT ROUND(distance_from_home, 4) FROM ccf_data_to_add) AND ROUND(distance_from_last_transaction, 4) IN (SELECT ROUND(distance_from_last_transaction, 4) FROM ccf_data_to_add) AND ROUND(ratio_to_median_purchase_price, 4) IN (SELECT ROUND(ratio_to_median_purchase_price, 4) FROM ccf_data_to_add);

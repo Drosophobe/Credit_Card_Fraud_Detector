@@ -2,7 +2,7 @@ import mysql.connector
 from mysql.connector import errorcode
 from unittest import TestCase
 from mock import patch
-import db_utils
+import db_utils_authentication
 
 MYSQL_HOST = "127.0.0.1"
 MYSQL_USER = "root"
