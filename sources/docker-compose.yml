@@ -3,7 +3,11 @@ version: '3'
 services:
   fastapi:
     build: ./FastAPI/
-    command: sh -c "sleep 110s ; uvicorn main_docker:app --reload"
+    command: sh -c "sleep 90s ; uvicorn main_docker:app --host 0.0.0.0 --port 8000 --reload"
+    ports:
+      - 8000:8000
+    networks:
+      - my_network
     depends_on:
       - mysql
 
@@ -18,3 +22,8 @@ services:
       MYSQL_ROOT_PASSWORD: 'Daniel'
     ports:
       - '3306:3306'
+    networks:
+      - my_network
+networks:
+  my_network:
+    name: my_network

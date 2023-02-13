@@ -15,7 +15,7 @@ from passlib.hash import bcrypt
 import jwt
 from typing import Optional
 import pandas as pd
-from Fraud import *
+from Fraud_docker import *
 df_i = pd.DataFrame(columns=["distance_from_home", "distance_from_last_transaction", "ratio_to_median_purchase_price", "repeat_retailer", "user_chip", "used_pin_number", "online_order", "fraud"])
 app = FastAPI()
 # Load templates and static contents
@@ -157,4 +157,4 @@ def post_retrain(username: User_Pydantic = Depends(ouath2_scheme)):
     else :
         return "Please sign in as the admin to do such thing"
 # Pour la db en mySQL il faut lancer un server puis télécharger MySQLWorkBench et aller dans l'onget Database -> Manage connection -> New - > set le name à ccf_users et changer l'ip et le port en fonction de tes entrées (par defaut le mdp est à rien) 
-register_tortoise(app, db_url ='mysql://root:Daniel@mysql:3306/ccf_mysql', modules={'models': ['main']}, generate_schemas = True, add_exception_handlers = True)
+register_tortoise(app, db_url ='mysql://root:Daniel@mysql:3306/ccf_mysql', modules={'models': ['main_docker']}, generate_schemas = True, add_exception_handlers = True)
