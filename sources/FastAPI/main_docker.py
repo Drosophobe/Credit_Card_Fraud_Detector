@@ -19,8 +19,8 @@ from Fraud import *
 df_i = pd.DataFrame(columns=["distance_from_home", "distance_from_last_transaction", "ratio_to_median_purchase_price", "repeat_retailer", "user_chip", "used_pin_number", "online_order", "fraud"])
 app = FastAPI()
 # Load templates and static contents
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+#app.mount("/static", StaticFiles(directory="static"), name="static")
+#templates = Jinja2Templates(directory="templates")
 JWT_SECRET = '2DD282EDA4F33BCF5FAD1C9F6F75069F1FCE13102BB56393C4819B4EB48C0A40'
 # Generated from https://www.grc.com/passwords.htm
 ALGORITHM = 'HS256'
@@ -157,4 +157,4 @@ def post_retrain(username: User_Pydantic = Depends(ouath2_scheme)):
     else :
         return "Please sign in as the admin to do such thing"
 # Pour la db en mySQL il faut lancer un server puis télécharger MySQLWorkBench et aller dans l'onget Database -> Manage connection -> New - > set le name à ccf_users et changer l'ip et le port en fonction de tes entrées (par defaut le mdp est à rien) 
-register_tortoise(app, db_url ='mysql://root:@127.0.0.1:3306/ccf_users', modules={'models': ['main']}, generate_schemas = True, add_exception_handlers = True)
+register_tortoise(app, db_url ='mysql://root:Daniel@mysql:3306/ccf_mysql', modules={'models': ['main']}, generate_schemas = True, add_exception_handlers = True)
