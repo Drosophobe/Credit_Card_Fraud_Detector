@@ -1,24 +1,28 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 # Libraries used for html templates (Above)
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from tortoise import fields 
 from tortoise.contrib.fastapi import register_tortoise
 from tortoise.contrib.pydantic import pydantic_model_creator
 from tortoise.models import Model
+from fastapi.responses import HTMLResponse
 # pip install passlib to get hashed password
 from passlib.hash import bcrypt
 # pip install pyjwt
 import jwt
 from typing import Optional
 import pandas as pd
-from Fraud_docker import *
-MYSQL_HOST = "mysql"
+from Fraud import *
+MYSQL_HOST = "127.0.0.1"
 MYSQL_USER = "root"
-MYSQL_PASSWORD = "Daniel"
+MYSQL_PASSWORD = ""
 MYSQL_DB = "ccf_mysql"
 MYSQL_TABLE = "user"
 MYSQL_PORT = "3306"
-admin_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInBhc3N3b3JkX2hhc2giOiIkMmIkMTIkLkp0QW5lQk9EV2ZGMjlzZEpiQ2djZUs4VUtqSVNSU2tpM3ZIUklQN09NeWsueHNUTzQ5TkcifQ.wWQTmRV0NsXzma64KmRIEaToqga6bk_UJGD7NR3r9dQ"
+admin_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInBhc3N3b3JkX2hhc2giOiIkMmIkMTIkLkp0QW5lQk9EV2ZGMjlzZEpiQ2djZUs4VUtqSVNSU2tpM3ZIUklQN09NeWsueHNUTzQ5TkcifQ.uCdujGAKdlHeaodHY0zplkJMa-V9RQNu2fc7156E7To"
 df_i = pd.DataFrame(columns=["distance_from_home", "distance_from_last_transaction", "ratio_to_median_purchase_price", "repeat_retailer", "used_chip", "used_pin_number", "online_order", "fraud"])
 app = FastAPI()
 # Load templates and static contents
@@ -115,13 +119,21 @@ def post_predict(new_request: Data, username: str = Depends(get_current_user)):
         x=1
     else:
         x=0
+    # We are goining to check if the pred asked come from ccf_data_remaining or a new input
+    # If yes we will save the 'fraud' from db not pred if not we will save the prediction
+    in_db = check_if_prediction_in_db(series_list)
+    if in_db[0] :
+        x = in_db[1]
+        origin = "Corrected"
+    else:
+        origin = "Not Corrected"
     global df_i
     series_list.append(x)
     serie_i = pd.Series(series_list, index = ["distance_from_home", "distance_from_last_transaction", "ratio_to_median_purchase_price", "repeat_retailer", "used_chip", "used_pin_number", "online_order", "fraud"])
     df_i = df_i.append(serie_i, ignore_index = True)
-    print(serie_i)
+    print(df_i)
     save_prediction_to_db(serie_i)
-    return {'Model vi : \n fraud ?': response} 
+    return {'Model vi : \n fraud ?': response, "Origin :": origin} 
 @app.post('/model/predict/v1', name="Predict Credit Card Fraud", tags=['users'])
 def post_predict( new_request: Data, username: str = Depends(get_current_user) ):
     '''
@@ -137,15 +149,10 @@ def post_save(username: str = Depends(ouath2_scheme) ):
     '''
     # Tout ça est à refaire avec les databases
     if username == admin_token:
-        df_r = load_data_from_db("ccf_data_remaining")
-        df_a = load_data_from_db("ccf_data_to_add")
-        df_i = load_data_from_db("ccf_data_i")
-        x, y = correct_and_remove_values(df_r, df_a)
-        df_i = df_i.append(y)
-        df_i = df_i.reset_index(drop = True)
-        delete_and_save_db(df = x, MYSQL_HOST = MYSQL_HOST, MYSQL_USER = MYSQL_USER, MYSQL_PASSWORD = MYSQL_PASSWORD , MYSQL_DB = MYSQL_DB, MYSQL_TABLE = 'ccf_data_remaining')
-        delete_and_save_db(df = y, MYSQL_HOST = MYSQL_HOST, MYSQL_USER = MYSQL_USER, MYSQL_PASSWORD = MYSQL_PASSWORD , MYSQL_DB = MYSQL_DB, MYSQL_TABLE = 'ccf_data_to_add')
-        delete_and_save_db(df = df_i, MYSQL_HOST = MYSQL_HOST, MYSQL_USER = MYSQL_USER, MYSQL_PASSWORD = MYSQL_PASSWORD , MYSQL_DB = MYSQL_DB, MYSQL_TABLE = 'ccf_data_i')
+        insert_prediction_to_db()
+        #df_0 = pd.read_csv("../Datasets/df_partial.csv", index_col = 0)
+        #df_2 = pd.concat([df_0, df_i], ignore_index=True)
+        #df_2.to_csv("../Datasets/df_i.csv")
         return "The Database has been successfully updated"
     else:
         return "Please sign in as the admin to do such thing"
@@ -157,4 +164,4 @@ def post_retrain(username: User_Pydantic = Depends(ouath2_scheme)):
     else :
         return "Please sign in as the admin to do such thing"
 # Pour la db en mySQL il faut lancer un server puis télécharger MySQLWorkBench et aller dans l'onget Database -> Manage connection -> New - > set le name à ccf_users et changer l'ip et le port en fonction de tes entrées (par defaut le mdp est à rien) 
-register_tortoise(app, db_url =f'mysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}', modules={'models': ['main_docker']}, add_exception_handlers = True)
+register_tortoise(app, db_url =f'mysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT }/{MYSQL_DB}', modules={'models': ['main']},generate_schemas=True, add_exception_handlers = True)

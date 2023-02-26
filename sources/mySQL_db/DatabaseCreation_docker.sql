@@ -17,8 +17,8 @@ ENCLOSED BY '"'
 LINES TERMINATED BY '\r'
 IGNORE 1 ROWS;
 -- We are checking the Table previously created
-SELECT * FROM ccf_mysql.ccf_data_full LIMIT 0, 10000000;
-SELECT COUNT(*) FROM ccf_mysql.ccf_data_full;
+-- SELECT * FROM ccf_mysql.ccf_data_full LIMIT 0, 10000000;
+-- SELECT COUNT(*) FROM ccf_mysql.ccf_data_full;
 
 -- We are creating a table with 0.1% of our data which will be used for the base model
 DROP TABLE IF EXISTS ccf_mysql.ccf_data_partial;
@@ -33,8 +33,8 @@ CREATE TABLE ccf_mysql.ccf_data_partial (
     fraud INTEGER);
 INSERT INTO ccf_mysql.ccf_data_partial SELECT * FROM ccf_mysql.ccf_data_full LIMIT 1000;
 -- We are checking the Table previously created
-SELECT * FROM ccf_mysql.ccf_data_partial;
-SELECT COUNT(*) FROM ccf_mysql.ccf_data_partial;
+-- SELECT * FROM ccf_mysql.ccf_data_partial;
+-- SELECT COUNT(*) FROM ccf_mysql.ccf_data_partial;
 
 
 -- We are copying the table with 0.1% of our data which will be used for train the new model and updated during production
@@ -50,8 +50,8 @@ CREATE TABLE ccf_mysql.ccf_data_i (
     fraud INTEGER);
 INSERT INTO ccf_mysql.ccf_data_i SELECT * FROM ccf_mysql.ccf_data_partial;
 -- We are checking the Table previously created
-SELECT * FROM ccf_mysql.ccf_data_i LIMIT 0, 1000000;
-SELECT COUNT(*) FROM ccf_mysql.ccf_data_i;
+-- SELECT * FROM ccf_mysql.ccf_data_i LIMIT 0, 1000000;
+-- SELECT COUNT(*) FROM ccf_mysql.ccf_data_i;
 
 
 -- We are creating a empty table that will be upaded with the corrected predictions to train model into production 
@@ -66,9 +66,9 @@ CREATE TABLE ccf_mysql.ccf_data_to_add (
     online_order INTEGER,
     fraud INTEGER);
 -- We are checking the Table previously created
-SELECT * FROM ccf_mysql.ccf_data_to_add;
+-- SELECT * FROM ccf_mysql.ccf_data_to_add;
 -- Just a way to delte Table while testing
-DELETE FROM ccf_mysql.ccf_data_to_add;
+-- DELETE FROM ccf_mysql.ccf_data_to_add;
 
 
 -- We are creating a table base on the base table that will be upaded by removing the values that the model already ingested 
@@ -86,7 +86,7 @@ INSERT INTO ccf_mysql.ccf_data_remaining SELECT * FROM ccf_mysql.ccf_data_full;
 -- we are deleting the first 0.1 values from ccf_data_i already ingested by the model
 DELETE FROM ccf_data_remaining LIMIT 1000;
 -- We are checking the Table previously created
-SELECT * FROM ccf_mysql.ccf_data_remaining LIMIT 0, 10000000;
+-- SELECT * FROM ccf_mysql.ccf_data_remaining LIMIT 0, 10000000;
 -- Checking the values to be deleted 
 -- SELECT distance_from_home FROM ccf_data_remaining WHERE ROUND(distance_from_home, 4) IN (SELECT ROUND(distance_from_home, 4) FROM ccf_data_to_add) AND 
 -- ROUND(distance_from_last_transaction, 4) IN (SELECT ROUND(distance_from_last_transaction, 4) FROM ccf_data_to_add) AND ROUND(ratio_to_median_purchase_price, 4) IN (SELECT 

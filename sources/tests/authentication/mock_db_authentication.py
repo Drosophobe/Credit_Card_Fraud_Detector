@@ -4,10 +4,11 @@ from unittest import TestCase
 from mock import patch
 import db_utils_authentication
 
-MYSQL_HOST = "127.0.0.1"
+MYSQL_HOST = "mysql"
 MYSQL_USER = "root"
-MYSQL_PASSWORD = ""
-MYSQL_DB = "ccf_users"
+MYSQL_PASSWORD = "Daniel"
+MYSQL_DB = "ccf_mysql"
+MYSQL_TABLE = "user"
 MYSQL_PORT = "3306"
 
 class MockDB(TestCase):
@@ -24,7 +25,7 @@ class MockDB(TestCase):
 
         # drop database if it already exists
         try:
-            cursor.execute("DROP DATABASE {}".format(MYSQL_DB))
+            cursor.execute(f"DROP TABLE {MYSQL_DB}.{MYSQL_TABLE}")
             cursor.close()
             print("DB dropped")
         except mysql.connector.Error as err:
@@ -32,14 +33,14 @@ class MockDB(TestCase):
 
         cursor = cnx.cursor(dictionary=True)
         try:
-            cursor.execute("CREATE DATABASE {} DEFAULT CHARACTER SET 'utf8'".format(MYSQL_DB))
+            cursor.execute("CREATE DATABASE {} DEFAULT CHARACTER SET 'utf8'".format(MYSQL_TABLE))
             print("DB Created")
         except mysql.connector.Error as err:
             print("Failed creating database: {}".format(err))
             exit(1)
-        cnx.database = MYSQL_DB
+        cnx.database = MYSQL_TABLE
 
-        query = """CREATE TABLE `user` (
+        query = """CREATE TABLE ccf_mysql.user (
                   `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY ,
                   `username` varchar(50) NOT NULL,
                   `password_hash` varchar(128) NOT NULL,
@@ -54,11 +55,10 @@ class MockDB(TestCase):
             else:
                 print(err.msg)
         else:
-            print("OK")
+            print("Table user created")
 
-        insert_data_query = """INSERT INTO `user` (`id`, `username`, `password_hash`) VALUES
-                            ('3', 'DarkAngel', '64'),
-                            ('4', 'Caroline', 'Poupéeeee')"""
+        insert_data_query = """INSERT INTO ccf_mysql.user (`id`, `username`, `password_hash`) VALUES
+                            ('1', 'admin', '$2b$12$.JtAneBODWfF29sdJbCgceK8UKjISRSki3vHRIP7OMyk.xsTO49NG')"""
         try:
             cursor.execute(insert_data_query)
             cnx.commit()
@@ -72,9 +72,9 @@ class MockDB(TestCase):
             'host': MYSQL_HOST,
             'user': MYSQL_USER,
             'password': MYSQL_PASSWORD,
-            'database': MYSQL_DB
+            'database': MYSQL_TABLE
         }
-        cls.mock_db_config = patch.dict(db_utils.config, testconfig)
+        cls.mock_db_config = patch.dict(db_utils_authentication.config, testconfig)
 
 """    @classmethod
     def tearDownClass(cls):

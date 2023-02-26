@@ -1,16 +1,17 @@
 import mysql.connector
 from mysql.connector import errorcode
 import MySQLdb
-MYSQL_HOST = "127.0.0.1"
+MYSQL_HOST = "mysql"
 MYSQL_USER = "root"
-MYSQL_PASSWORD = ""
-MYSQL_DB = "ccf_data"
+MYSQL_PASSWORD = "Daniel"
+MYSQL_TABLE = "ccf_data"
+MYSQL_DB = "ccf_mysql"
 MYSQL_PORT = 3306
 config = {
     'host': MYSQL_HOST,
     'user': MYSQL_USER,
     'password': MYSQL_PASSWORD,
-    'database': MYSQL_DB
+    'database': MYSQL_TABLE
 }
 
 def db_read(query, params=None):

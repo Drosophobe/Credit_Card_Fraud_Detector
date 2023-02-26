@@ -4,10 +4,11 @@ from unittest import TestCase
 from mock import patch
 import db_utils_data
 
-MYSQL_HOST = "127.0.0.1"
+MYSQL_HOST = "mysql"
 MYSQL_USER = "root"
-MYSQL_PASSWORD = ""
-MYSQL_DB = "ccf_data"
+MYSQL_PASSWORD = "Daniel"
+MYSQL_DB = 'ccf_mysql'
+MYSQL_TABLE = "ccf_data"
 MYSQL_PORT = "3306"
 
 class MockDB(TestCase):
@@ -24,30 +25,30 @@ class MockDB(TestCase):
 
         # drop database if it already exists
         try:
-            cursor.execute("DROP DATABASE {}".format(MYSQL_DB))
+            cursor.execute("DROP DATABASE {}".format(MYSQL_TABLE))
             cursor.close()
             print("DB dropped")
         except mysql.connector.Error as err:
-            print("{}{}".format(MYSQL_DB, err))
+            print("{}{}".format(MYSQL_TABLE, err))
 
         cursor = cnx.cursor(dictionary=True)
         try:
-            cursor.execute("CREATE DATABASE {} DEFAULT CHARACTER SET 'utf8'".format(MYSQL_DB))
+            cursor.execute("CREATE DATABASE {} DEFAULT CHARACTER SET 'utf8'".format(MYSQL_TABLE))
             print("DB Created")
         except mysql.connector.Error as err:
             print("Failed creating database: {}".format(err))
             exit(1)
-        cnx.database = MYSQL_DB
+        cnx.database = MYSQL_TABLE
         for table in ["ccf_data_full", "ccf_data_partial", "ccf_data_i", "ccf_data_remaining", "ccf_data_to_add"]:
             print(table)
             cursor = cnx.cursor(dictionary=True)
         
-            query = f"""CREATE TABLE {MYSQL_DB}.{table} (
+            query = f"""CREATE TABLE {MYSQL_TABLE}.{table} (
                     distance_from_home FLOAT,
                     distance_from_last_transaction FLOAT,
                     ratio_to_median_purchase_price  FLOAT,
                     repeat_retailer INTEGER,
-                    used_chip INTEGER,
+                    user_chip INTEGER,
                     used_pin_number INTEGER,
                     online_order INTEGER,
                     fraud INTEGER);"""
@@ -91,7 +92,7 @@ class MockDB(TestCase):
                 'host': MYSQL_HOST,
                 'user': MYSQL_USER,
                 'password': MYSQL_PASSWORD,
-                'database': MYSQL_DB
+                'database': MYSQL_TABLE
             }
         cls.mock_db_config = patch.dict(db_utils_data.config, testconfig)
 

@@ -3,18 +3,17 @@ version: '3'
 services:
   fastapi:
     build: ./FastAPI/
-    command: sh -c "sleep 40s ; uvicorn main_docker:app --host 0.0.0.0 --port 8000 --reload"
+    command: sh -c "sleep 150s ; uvicorn main_docker:app --host 0.0.0.0 --port 8000 --reload"
     ports:
       - 8000:8000
     networks:
       - my_network
-#    volumes:
-#      - ./src:/app
     depends_on:
       - tests
   tests:
     build: ./tests/
-    command: sh -c "sleep 30s ; python3 authentication/test_utils_authentication.py"
+    command: sh -c "sleep 50s ; python3 
+authentication/test_utils_authentication.py ; sleep 50s ; python3 datas/test_utils_data.py"
     networks:
       - my_network
     depends_on:
@@ -29,15 +28,10 @@ services:
       MYSQL_DATABASE: 'ccf_mysql'
       MYSQL_ROOT_PASSWORD: 'Daniel'
     ports:
-      - '3307:3306'
+      - 3306:3306
       - 33060:33060
     networks:
       - my_network
-#    volumes:
-#          - dbdata:/var/lib/mysql
 networks:
   my_network:
     name: my_network
-    driver: bridge
-volumes:
-    dbdata:

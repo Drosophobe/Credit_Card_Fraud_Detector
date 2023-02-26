@@ -1,24 +1,28 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 # Libraries used for html templates (Above)
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from tortoise import fields 
 from tortoise.contrib.fastapi import register_tortoise
 from tortoise.contrib.pydantic import pydantic_model_creator
 from tortoise.models import Model
+from fastapi.responses import HTMLResponse
 # pip install passlib to get hashed password
 from passlib.hash import bcrypt
 # pip install pyjwt
 import jwt
 from typing import Optional
 import pandas as pd
-from Fraud_docker import *
-MYSQL_HOST = "mysql"
+from Fraud import *
+MYSQL_HOST = "127.0.0.1"
 MYSQL_USER = "root"
-MYSQL_PASSWORD = "Daniel"
+MYSQL_PASSWORD = ""
 MYSQL_DB = "ccf_mysql"
 MYSQL_TABLE = "user"
 MYSQL_PORT = "3306"
-admin_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInBhc3N3b3JkX2hhc2giOiIkMmIkMTIkLkp0QW5lQk9EV2ZGMjlzZEpiQ2djZUs4VUtqSVNSU2tpM3ZIUklQN09NeWsueHNUTzQ5TkcifQ.wWQTmRV0NsXzma64KmRIEaToqga6bk_UJGD7NR3r9dQ"
+admin_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInBhc3N3b3JkX2hhc2giOiIkMmIkMTIkLkp0QW5lQk9EV2ZGMjlzZEpiQ2djZUs4VUtqSVNSU2tpM3ZIUklQN09NeWsueHNUTzQ5TkcifQ.uCdujGAKdlHeaodHY0zplkJMa-V9RQNu2fc7156E7To"
 df_i = pd.DataFrame(columns=["distance_from_home", "distance_from_last_transaction", "ratio_to_median_purchase_price", "repeat_retailer", "used_chip", "used_pin_number", "online_order", "fraud"])
 app = FastAPI()
 # Load templates and static contents
@@ -129,6 +133,7 @@ def post_predict( new_request: Data, username: str = Depends(get_current_user) )
     '''
     input_list = [item[1] for item in new_request]
     response = Fraud(input_list, loaded_model_full)
+    print(df_i)
     return {'Model v1 : \n fraud ?': response}
 
 @app.post('/model/save', name="Update database from previous predicitons", tags=['users'])
@@ -157,4 +162,4 @@ def post_retrain(username: User_Pydantic = Depends(ouath2_scheme)):
     else :
         return "Please sign in as the admin to do such thing"
 # Pour la db en mySQL il faut lancer un server puis télécharger MySQLWorkBench et aller dans l'onget Database -> Manage connection -> New - > set le name à ccf_users et changer l'ip et le port en fonction de tes entrées (par defaut le mdp est à rien) 
-register_tortoise(app, db_url =f'mysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}', modules={'models': ['main_docker']}, add_exception_handlers = True)
+register_tortoise(app, db_url =f'mysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT }/{MYSQL_DB}', modules={'models': ['main']},generate_schemas=True, add_exception_handlers = True)
